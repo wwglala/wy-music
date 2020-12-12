@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #wrapper {
+      width: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="wrapper" style="height: 100px;background: aquamarine;"></div>
+
+
+
+  <script>
+
+
+    var sleep = function (delay) {
+      for (let start = Date.now(); start + delay >= Date.now();) { }
+    }
+    var works = [
+      () => {
+        sleep(600);// 一帧的时间为 16.6ms，因为已经超过了这个时间，所以应该将控制权交给浏览器
+        wrapper.style.width = wrapper.offsetWidth + 10 + 'px'
+        console.log('1结束');
+        console.log(wrapper.offsetWidth);
+
+      },
+      () => {
+        sleep(20);
+        wrapper.style.width = wrapper.offsetWidth + 10 + 'px'
+        console.log('2结束');
+      },
+      () => {
+        sleep(20);
+        wrapper.style.width = wrapper.offsetWidth + 10 + 'px'
+        console.log('3结束');
+        console.timeEnd();
+      }
+    ]
+    var workloop = function (deadline) {
+      console.log(deadline.didTimeout);
+      // 如果此帧的剩余时间超过 0秒或者，这个回调函数已经超时了
+      if ((deadline.timeRemaining() > 0 || deadline.didTimeout) && works.length > 0) {
+        works.shift()();
+      }
+      // 如果没有剩余时间，或者回调函数超时了那么需要放弃执行任务，吧执行权交还给浏览器
+
+      if (works.length > 0) {
+        window.requestIdleCallback(workloop, { timeout: 1000 })
+      }
+    }
+    console.time()
+
+    function out(deadline) {
+      console.log(deadline.didTimeout);
+      sleep(6000)
+    }
+
+    window.requestIdleCallback(workloop, { timeout: 500 })
+
+
+    // setInterval(() => {
+    //   console.log(1123);
+    // }, 16)
+
+
+
+
+
+  </script>
+
+</body>
+
+</html>
