@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+
+  <script>
+    class UpdateQueue {
+      constructor() {
+        this.state = null;
+        this.firstUpdate = null;
+        this.lastUpdate = null;
+      }
+      setUpdate(update) {
+        if (!this.firstUpdate) {
+          this.firstUpdate = update;
+          this.lastUpdate = update;
+        } else {
+          this.lastUpdate.next = update;
+          this.lastUpdate = update;
+        }
+      }
+      forceUpdate() {
+        let next = this.firstUpdate;
+        while (next) {
+          if (next.payload instanceof Function) {
+            this.state = { ...this.state, ...next.payload(this.state) }
+          } else {
+            this.state = { ...this.state, ...next.payload }
+          }
+          next = next.next
+          if (!next) {
+            break;
+          }
+        }
+        // 更新完毕清空链表
+        this.firstUpdate = null;
+        this.lastUpdate = null;
+      }
+    }
+    class Update {
+      constructor(payload) {
+        this.payload = payload;
+        this.next = null;
+      }
+    }
+    let queue = new UpdateQueue();
+    queue.setUpdate(new Update({ name: 'wwwg' }));
+    queue.setUpdate(new Update({ number: 0 }));
+    queue.setUpdate(new Update({ number: 1 }));
+    queue.setUpdate(new Update((state) => ({ number: state.number + 1 })));
+    queue.forceUpdate()
+
+    console.log(queue.state);
+
+  </script>
+
+</body>
+
+</html>
