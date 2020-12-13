@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <script>
+    // return: 返回父对象
+    // child: 大儿子
+    // sibling: 兄弟
+    let A1 = { type: 'div', key: 'A1' };
+    let B1 = { type: 'div', key: 'B1', retrun: A1 };
+    let B2 = { type: 'div', key: 'B2', return: A1 };
+    let B3 = { type: 'div', key: 'B3', return: A1 };
+    let C1 = { type: 'div', key: 'C1', return: B1 };
+    let C2 = { type: 'div', key: 'C2', return: B1 };
+    A1.child = B1;
+    B1.sibling = B2;
+    B1.child = C1;
+    B2.sibling = B3;
+    C1.sibling = C2;
+
+
+
+    let nextUpdate = null;
+    function workloop(deadline) {
+      console.log(deadline.timeRemaining());
+      while (nextUpdate && (deadline.timeRemaining() > 1 || !deadline.didTimeout)) {
+        nextUpdate = performUnitOfWork(nextUpdate)
+      }
+      if (!nextUpdate) {
+        console.log('结束渲染');
+      } else {
+        window.requestIdleCallback(workloop, { timeout: 1000 })
+      }
+    }
+
+    function performUnitOfWork(fiber) {
+      startWork(fiber)
+      if (fiber.child) {
+        return fiber.child
+      }
+      while (fiber) {
+        endWork(fiber)
+        if (fiber.sibling) {
+          return fiber.sibling
+        }
+        fiber = fiber.return;
+      }
+    }
+    function startWork(fiber) {
+      sleep(20)
+      console.log('开始：' + fiber.key);
+    }
+    function endWork(fiber) {
+      console.log('结束：' + fiber.key);
+    }
+    nextUpdate = A1;
+
+    //  requestAnimationFrame
+    window.requestIdleCallback(workloop, { timeout: 1000 })
+    function sleep(delay) {
+      for (let start = Date.now(); Date.now() - delay >= start;) {
+      }
+    }
+
+  </script>
+</body>
+
+</html>
