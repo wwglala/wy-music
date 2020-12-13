@@ -26,10 +26,17 @@
     C1.sibling = C2;
 
 
-    function workloop(fiber) {
-      let nextUpdate = fiber;
-      while (nextUpdate) {
+
+    let nextUpdate = null;
+    function workloop(deadline) {
+      console.log(deadline.timeRemaining());
+      while (nextUpdate && (deadline.timeRemaining() > 1 || !deadline.didTimeout)) {
         nextUpdate = performUnitOfWork(nextUpdate)
+      }
+      if (!nextUpdate) {
+        console.log('结束渲染');
+      } else {
+        window.requestIdleCallback(workloop, { timeout: 1000 })
       }
     }
 
@@ -47,13 +54,20 @@
       }
     }
     function startWork(fiber) {
+      sleep(20)
       console.log('开始：' + fiber.key);
     }
     function endWork(fiber) {
       console.log('结束：' + fiber.key);
     }
+    nextUpdate = A1;
 
-    workloop(A1)
+    //  requestAnimationFrame
+    window.requestIdleCallback(workloop, { timeout: 1000 })
+    function sleep(delay) {
+      for (let start = Date.now(); Date.now() - delay >= start;) {
+      }
+    }
 
   </script>
 </body>
