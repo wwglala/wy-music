@@ -1,5 +1,5 @@
 import React from './min-react/react';
-import ReactDOM from 'react-dom';
+import ReactDOM from './react-dom';
 
 const style = {
   border: '3px solid red',

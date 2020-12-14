@@ -5,4 +5,6 @@ export const TAG_ROOT = 'TAG_ROOT';
 // 元素节点 span div p 
 export const TAG_HOST = 'TAG_HOST';
 // 文本节点
-export const TAG_TEXT = 'TAG_TEXT'; 
+export const TAG_TEXT = 'TAG_TEXT';
+// 增加节点
+export const PLACEMENT = 'PLACEMENT'; 
