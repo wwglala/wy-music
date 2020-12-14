@@ -66,6 +66,20 @@ function workloop(deadline) {
 
 function performUnitOfWork(currentFiber) {
   beginWork(currentFiber)
+
+  if (currentFiber.child) {
+    return currentFiber.child
+  }
+  while (currentFiber) {
+    completeUnitOfWork(currentFiber)
+    // 如果存在 弟弟，返回
+    if (currentFiber.sibling) {
+      return currentFiber.sibling
+    }
+    // 最后返回父亲，找父亲的兄弟
+    currentFiber = currentFiber.return
+
+  }
 }
 function beginWork(currentFiber) {
   //如果是根fiber
@@ -74,13 +88,18 @@ function beginWork(currentFiber) {
     updateHostRoot(currentFiber)
   }
 }
+function completeUnitOfWork(currentFiber) {
+
+}
+
+
 function updateHostRoot(currentFiber) {
   // react的调和 (协调子节点)
   reconcileChildren(currentFiber, currentFiber.props.children)
 }
 
 
-function reconcileChildren(currentVdom, children) {
+function reconcileChildren(currentFiber, children) {
   // 子节点的索引，通过这个将根节点的所有直系儿子们取出
   let currentChildrenIndex = 0;
   // 上一个子fiber
@@ -104,9 +123,18 @@ function reconcileChildren(currentVdom, children) {
       type: currentSon.type,
       props: currentSon.props,
       stateNode: null,// dom元素，这个时候还没没有创建所以为null;
-      return: currentVdom,// 父节点
+      return: currentFiber,// 父节点
       effectTag: PLACEMENT,
       nextEffect: null,// effect list 是个单链表，和fiber的完成顺序一致，但是节点只放哪些出钱的人
+    }
+
+    if (newFiber) {
+      if (currentChildrenIndex === 0) {
+        currentFiber.child = newFiber
+      } else {
+        preSibling.sibling = newFiber
+      }
+      preSibling = newFiber
     }
 
 
